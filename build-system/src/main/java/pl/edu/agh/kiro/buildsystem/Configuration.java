@@ -18,14 +18,12 @@ public class Configuration {
 	private String localProjectCopyPath;
 	
 	/**
-	 * Project relative path to main POM file
-	 */
-	private String pomPath;
-	
-	/**
 	 * Minimum number of seconds between repository check
 	 */
 	private Long scanInterval;
+
+	private String mavenHome;
+	private String logPath;
 	
 	/**
 	 * Private constructor
@@ -35,8 +33,9 @@ public class Configuration {
 		
 		this.scanInterval = builder.scanInterval;
 		this.localProjectCopyPath = builder.localProjectCopyPath;
-		this.pomPath = builder.pomPath;
 		this.repositoryProjectUrl = builder.repositoryProjectUrl;
+		this.mavenHome = builder.mavenHome;
+		this.logPath = builder.logPath;
 	}
 	
 	/**
@@ -60,11 +59,13 @@ public class Configuration {
 		return localProjectCopyPath;
 	}
 
-	/**
-	 * @return the pomPath
-	 */
-	public String getPomPath() {
-		return pomPath;
+
+	public String getMavenHome() {
+		return mavenHome;
+	}
+
+	public String getLogPath() {
+		return logPath;
 	}
 
 	/**
@@ -77,66 +78,33 @@ public class Configuration {
 		private Long scanInterval;
 		private String repositoryProjectUrl;
 		private String localProjectCopyPath;
-		private String pomPath;
-		
+		private String mavenHome;
+		private String logPath;
+
+
 		public Configuration build() {
 			return new Configuration(this);
 		}
 
-		/**
-		 * @return the scanInterval
-		 */
-		public Long getScanInterval() {
-			return scanInterval;
-		}
-
-		/**
-		 * @param scanInterval the scanInterval to set
-		 */
 		public void setScanInterval(Long scanInterval) {
 			this.scanInterval = scanInterval;
 		}
 
-		/**
-		 * @return the repositoryProjectUrl
-		 */
-		public String getRepositoryProjectUrl() {
-			return repositoryProjectUrl;
-		}
-
-		/**
-		 * @param repositoryProjectUrl the repositoryProjectUrl to set
-		 */
 		public void setRepositoryProjectUrl(String repositoryProjectUrl) {
 			this.repositoryProjectUrl = repositoryProjectUrl;
 		}
 
-		/**
-		 * @return the localProjectCopyPath
-		 */
-		public String getLocalProjectCopyPath() {
-			return localProjectCopyPath;
-		}
-
-		/**
-		 * @param localProjectCopyPath the localProjectCopyPath to set
-		 */
 		public void setLocalProjectCopyPath(String localProjectCopyPath) {
 			this.localProjectCopyPath = localProjectCopyPath;
 		}
 
-		/**
-		 * @return the pomPath
-		 */
-		public String getPomPath() {
-			return pomPath;
+		public void setMavenHome(String mavenHome) {
+			this.mavenHome = mavenHome;
 		}
 
-		/**
-		 * @param pomPath the pomPath to set
-		 */
-		public void setPomPath(String pomPath) {
-			this.pomPath = pomPath;
+		public void setLogPath(String logPath) {
+			this.logPath = logPath;
 		}
+
 	}
 }

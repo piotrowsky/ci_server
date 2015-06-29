@@ -36,8 +36,7 @@ public class Main {
 				+ "CONFIGURATION:\n"
 				+ "- monitored location:\t\t" + config.getRepositoryProjectUrl() + "\n"
 				+ "- project local copy:\t\t" + config.getLocalProjectCopyPath() + "\n"
-				+ "- project main POM file:\t" + config.getPomPath() + "\n"
-				+ "- scan minimum interval:\t" + config.getScanInterval() + "\n"
+				+ "- scan interval:\t" + config.getScanInterval() + "\n"
 				+ "---------------------------------------------------------------------\n\n\n");
 	}
 	
@@ -52,9 +51,10 @@ public class Main {
 
 		configurationBuilder.setRepositoryProjectUrl(properties.getString("config.repository.project.url"));
 		configurationBuilder.setLocalProjectCopyPath(properties.getString("config.repository.project.copy.path"));
-		configurationBuilder.setPomPath(properties.getString("config.project.pom.relative.path"));
 		configurationBuilder.setScanInterval(Long.parseLong(properties.getString("config.minimum.scan.interval")));
-		
+		configurationBuilder.setMavenHome(properties.getString("maven.home"));
+		configurationBuilder.setLogPath(properties.getString("log.path"));
+
 		return configurationBuilder.build();
 	}
 	

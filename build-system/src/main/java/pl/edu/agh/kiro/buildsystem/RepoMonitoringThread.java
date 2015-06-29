@@ -1,15 +1,13 @@
 package pl.edu.agh.kiro.buildsystem;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.maven.shared.invoker.DefaultInvocationRequest;
-import org.apache.maven.shared.invoker.DefaultInvoker;
-import org.apache.maven.shared.invoker.InvocationRequest;
-import org.apache.maven.shared.invoker.InvocationResult;
-import org.apache.maven.shared.invoker.Invoker;
-import org.apache.maven.shared.invoker.MavenInvocationException;
+import org.apache.maven.shared.invoker.*;
 import org.tmatesoft.svn.core.SVNException;
 
 
@@ -30,7 +28,6 @@ public class RepoMonitoringThread implements Runnable {
 	 * @param config
 	 */
 	public RepoMonitoringThread(Configuration config) {
-		
 		this.config = config;
 	}
 
@@ -43,8 +40,8 @@ public class RepoMonitoringThread implements Runnable {
 		
 		try {
 			//maven invoker init
-			StringBuilder errorOutput = new StringBuilder();
-			Invoker mvnInvoker = getInvoker(errorOutput);
+			StringBuilder logs = new StringBuilder();
+			Invoker mvnInvoker = getInvoker(logs);
 			InvocationRequest mvnRequest = getInvocationRequest();
 			
 			//repo init
@@ -53,18 +50,35 @@ public class RepoMonitoringThread implements Runnable {
 			
 			//main loop
 			while(true) {
-				
+
 				long timeBeforeBuild = System.currentTimeMillis();
-				
+
 				//if commit was performed then update local copy, run maven build and handle eventual errors
 				if(currentProjectCopyRevision < svnRepoManager.getLatestRevision()) {
-					
+					LocalDateTime now = LocalDateTime.now();
+					logToConsole("Automatic build has been triggered!");
+					logToConsole("Old revision: " + currentProjectCopyRevision);
+					logToConsole("New revision: " + svnRepoManager.getLatestRevision());
+					logToConsole("Performing SVN checkout...");
+
 					currentProjectCopyRevision = svnRepoManager.doCheckout();
-					
+
+					logToConsole("Checkout performed successfully!");
+					logToConsole("Executing maven build...");
+
 					InvocationResult result = mvnInvoker.execute(mvnRequest);
 					if(result.getExitCode() != 0) {
-						handleError(errorOutput);
+						logToConsole("Build executed with failures");
+					} else {
+						logToConsole("Build executed successfully!");
 					}
+
+					logToConsole("Build log saved to file: " + now + ".log");
+					try {
+						saveLogsToFile(logs, now);
+					} catch(Exception ex) {}
+
+					logs.setLength(0); // clear logs
 				}
 				
 				
@@ -87,9 +101,9 @@ public class RepoMonitoringThread implements Runnable {
 	 */
 	private InvocationRequest getInvocationRequest() {
 		
-		File pomFile = new File(config.getLocalProjectCopyPath() + config.getPomPath());
 		InvocationRequest request = new DefaultInvocationRequest();
-		request.setPomFile(pomFile);
+		request.setDebug(true);
+		request.setBaseDirectory(new File(config.getLocalProjectCopyPath()));
 		request.setGoals(Arrays.asList("clean", "install -e -U"));
 		
 		return request;
@@ -99,21 +113,24 @@ public class RepoMonitoringThread implements Runnable {
 	 * Returns invoker
 	 * @return
 	 */
-	private Invoker getInvoker(StringBuilder errorOutput) {
+	private Invoker getInvoker(StringBuilder logs) {
 		
 		Invoker invoker = new DefaultInvoker();
-		invoker.setOutputHandler(new CustomOtputHandler(errorOutput));
-		
+		invoker.setOutputHandler((line) -> logs.append(line + "\n"));
+		if(!config.getMavenHome().isEmpty()) {
+			invoker.setMavenHome(new File(config.getMavenHome()));
+		}
 		return invoker;
 	}
-	
-	/**
-	 * Handles error output
-	 * @param errorOutput
-	 */
-	private void handleError(StringBuilder errorOutput) {
-		
-		//TODO: handle build error e.g. send email, revert latest repository commits etc.
-		
+
+	private void saveLogsToFile(StringBuilder logs, LocalDateTime timestamp) throws Exception {
+		PrintWriter writer = new PrintWriter(config.getLogPath() + "/" + timestamp + ".log", "UTF-8");
+		writer.append(logs);
+		writer.close();
 	}
+
+	private void logToConsole(String log) {
+		System.out.println(log);
+	}
+
 }
