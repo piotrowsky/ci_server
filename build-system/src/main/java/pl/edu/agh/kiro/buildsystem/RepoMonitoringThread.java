@@ -22,6 +22,7 @@ public class RepoMonitoringThread implements Runnable {
 	 * Configuration
 	 */
 	private Configuration config;
+	private Mailer mailer;
 	
 	/**
 	 * Main constructor
@@ -29,6 +30,7 @@ public class RepoMonitoringThread implements Runnable {
 	 */
 	public RepoMonitoringThread(Configuration config) {
 		this.config = config;
+		this.mailer = new Mailer(config);
 	}
 
 	/**
@@ -41,6 +43,8 @@ public class RepoMonitoringThread implements Runnable {
 		try {
 			//maven invoker init
 			StringBuilder logs = new StringBuilder();
+			String logFilePath;
+			String logFileName;
 			Invoker mvnInvoker = getInvoker(logs);
 			InvocationRequest mvnRequest = getInvocationRequest();
 			
@@ -72,12 +76,14 @@ public class RepoMonitoringThread implements Runnable {
 					} else {
 						logToConsole("Build executed successfully!");
 					}
-
+					logFilePath = config.getLogPath() + "/" + now + ".log";
+					logFileName = now + ".log";
 					logToConsole("Build log saved to file: " + now + ".log");
 					try {
-						saveLogsToFile(logs, now);
+						saveLogsToFile(logs, logFilePath);
+						mailer.send("Continous integration server message", "Build information", logFilePath,
+								logFileName);
 					} catch(Exception ex) {}
-
 					logs.setLength(0); // clear logs
 				}
 				
@@ -123,8 +129,8 @@ public class RepoMonitoringThread implements Runnable {
 		return invoker;
 	}
 
-	private void saveLogsToFile(StringBuilder logs, LocalDateTime timestamp) throws Exception {
-		PrintWriter writer = new PrintWriter(config.getLogPath() + "/" + timestamp + ".log", "UTF-8");
+	private void saveLogsToFile(StringBuilder logs, String fileName) throws Exception {
+		PrintWriter writer = new PrintWriter(fileName, "UTF-8");
 		writer.append(logs);
 		writer.close();
 	}

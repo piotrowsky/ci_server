@@ -1,5 +1,7 @@
 package pl.edu.agh.kiro.buildsystem;
 
+import java.util.List;
+
 /**
  * Configuration object
  * 
@@ -24,18 +26,29 @@ public class Configuration {
 
 	private String mavenHome;
 	private String logPath;
-	
+	private String mailerUser;
+	private String mailerPass;
+	private String mailerAuth;
+	private String mailerHost;
+	private String mailerPort;
+	private String mailerRecipients;
+
 	/**
 	 * Private constructor
 	 * @param builder
 	 */
 	private Configuration(ConfigurationBuilder builder) {
-		
+		this.mailerUser = builder.mailerUser;
+		this.mailerPass = builder.mailerPass;
 		this.scanInterval = builder.scanInterval;
 		this.localProjectCopyPath = builder.localProjectCopyPath;
 		this.repositoryProjectUrl = builder.repositoryProjectUrl;
 		this.mavenHome = builder.mavenHome;
 		this.logPath = builder.logPath;
+		this.mailerAuth = builder.mailerAuth;
+		this.mailerHost = builder.mailerHost;
+		this.mailerPort = builder.mailerPort;
+		this.mailerRecipients = builder.mailerRecipients;
 	}
 	
 	/**
@@ -68,6 +81,30 @@ public class Configuration {
 		return logPath;
 	}
 
+	public String getMailerAuth() {
+		return mailerAuth;
+	}
+
+	public String getMailerHost() {
+		return mailerHost;
+	}
+
+	public String getMailerPort() {
+		return mailerPort;
+	}
+
+	public String getMailerUser() {
+		return mailerUser;
+	}
+
+	public String getMailerPass() {
+		return mailerPass;
+	}
+
+	public String getMailerRecipients() {
+		return mailerRecipients;
+	}
+
 	/**
 	 * Configuration builder
 	 * 
@@ -80,6 +117,12 @@ public class Configuration {
 		private String localProjectCopyPath;
 		private String mavenHome;
 		private String logPath;
+		private String mailerUser;
+		private String mailerPass;
+		private String mailerAuth;
+		private String mailerHost;
+		private String mailerPort;
+		private String mailerRecipients;
 
 
 		public Configuration build() {
@@ -106,5 +149,28 @@ public class Configuration {
 			this.logPath = logPath;
 		}
 
+		public void setMailerUser(String mailerUser) {
+			this.mailerUser = mailerUser;
+		}
+
+		public void setMailerPass(String mailerPass) {
+			this.mailerPass = mailerPass;
+		}
+
+		public void setMailerAuth(String mailerAuth) {
+			this.mailerAuth = mailerAuth;
+		}
+
+		public void setMailerHost(String mailerHost) {
+			this.mailerHost = mailerHost;
+		}
+
+		public void setMailerPort(String mailerPort) {
+			this.mailerPort = mailerPort;
+		}
+
+		public void setMailerRecipients(String mailerRecipients) {
+			this.mailerRecipients = mailerRecipients;
+		}
 	}
 }

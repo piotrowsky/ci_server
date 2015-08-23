@@ -1,5 +1,7 @@
 package pl.edu.agh.kiro.buildsystem;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.ResourceBundle;
 
 import pl.edu.agh.kiro.buildsystem.Configuration.ConfigurationBuilder;
@@ -54,6 +56,12 @@ public class Main {
 		configurationBuilder.setScanInterval(Long.parseLong(properties.getString("config.minimum.scan.interval")));
 		configurationBuilder.setMavenHome(properties.getString("maven.home"));
 		configurationBuilder.setLogPath(properties.getString("log.path"));
+		configurationBuilder.setMailerUser(properties.getString("mailer.user"));
+		configurationBuilder.setMailerPass(properties.getString("mailer.pass"));
+		configurationBuilder.setMailerAuth(properties.getString("mailer.auth"));
+		configurationBuilder.setMailerHost(properties.getString("mailer.host"));
+		configurationBuilder.setMailerPort(properties.getString("mailer.port"));
+		configurationBuilder.setMailerRecipients(properties.getString("mailer.recipients"));
 
 		return configurationBuilder.build();
 	}
