@@ -1,7 +1,10 @@
 package pl.edu.agh.kiro.buildsystem;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Properties;
 import java.util.ResourceBundle;
 
 import pl.edu.agh.kiro.buildsystem.Configuration.ConfigurationBuilder;
@@ -17,9 +20,9 @@ public class Main {
 	 * Application startup
 	 * @param args
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		
-		Configuration config = loadConfiguration();
+		Configuration config = loadConfiguration(args[0]);
 		printStartupMessage(config);
 		Thread repoMonitoringThread = new Thread(new RepoMonitoringThread(config));
 		repoMonitoringThread.start();
@@ -46,22 +49,29 @@ public class Main {
 	 * Loads configuration from .properties file and returns {@link Configuration} instance.
 	 * @return
 	 */
-	public static Configuration loadConfiguration() {
-		
-		ResourceBundle properties = ResourceBundle.getBundle("config");
+	public static Configuration loadConfiguration(String configFile) throws IOException {
+
+		Properties properties = new Properties();
+
+		if (configFile == null || configFile.isEmpty()) {
+			properties.load(Main.class.getClassLoader().getResourceAsStream("config.properties"));
+		} else {
+			properties.load(new FileInputStream(configFile));
+		}
+
 		ConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
 
-		configurationBuilder.setRepositoryProjectUrl(properties.getString("config.repository.project.url"));
-		configurationBuilder.setLocalProjectCopyPath(properties.getString("config.repository.project.copy.path"));
-		configurationBuilder.setScanInterval(Long.parseLong(properties.getString("config.minimum.scan.interval")));
-		configurationBuilder.setMavenHome(properties.getString("maven.home"));
-		configurationBuilder.setLogPath(properties.getString("log.path"));
-		configurationBuilder.setMailerUser(properties.getString("mailer.user"));
-		configurationBuilder.setMailerPass(properties.getString("mailer.pass"));
-		configurationBuilder.setMailerAuth(properties.getString("mailer.auth"));
-		configurationBuilder.setMailerHost(properties.getString("mailer.host"));
-		configurationBuilder.setMailerPort(properties.getString("mailer.port"));
-		configurationBuilder.setMailerRecipients(properties.getString("mailer.recipients"));
+		configurationBuilder.setRepositoryProjectUrl(properties.getProperty("config.repository.project.url"));
+		configurationBuilder.setLocalProjectCopyPath(properties.getProperty("config.repository.project.copy.path"));
+		configurationBuilder.setScanInterval(Long.parseLong(properties.getProperty("config.minimum.scan.interval")));
+		configurationBuilder.setMavenHome(properties.getProperty("maven.home"));
+		configurationBuilder.setLogPath(properties.getProperty("log.path"));
+		configurationBuilder.setMailerUser(properties.getProperty("mailer.user"));
+		configurationBuilder.setMailerPass(properties.getProperty("mailer.pass"));
+		configurationBuilder.setMailerAuth(properties.getProperty("mailer.auth"));
+		configurationBuilder.setMailerHost(properties.getProperty("mailer.host"));
+		configurationBuilder.setMailerPort(properties.getProperty("mailer.port"));
+		configurationBuilder.setMailerRecipients(properties.getProperty("mailer.recipients"));
 
 		return configurationBuilder.build();
 	}
